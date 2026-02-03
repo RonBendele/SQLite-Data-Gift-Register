@@ -1,0 +1,34 @@
+{
+  "fill" : {
+    "automatic-gradient" : "srgb:0.95511,0.79369,0.97288,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "glass" : false,
+          "image-name" : "Image 2026-02-02 at 11.21 AM.png",
+          "name" : "Image 2026-02-02 at 11.21 AM",
+          "position" : {
+            "scale" : 2.25,
+            "translation-in-points" : [
+              -12.37890625,
+              -26.93359375
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : "shared"
+  }
+}
