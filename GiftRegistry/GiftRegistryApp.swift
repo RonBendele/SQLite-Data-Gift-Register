@@ -17,7 +17,7 @@
 import SwiftUI
 
 @main
-struct Gift_RegisterApp: App {
+struct GiftRegistryApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
