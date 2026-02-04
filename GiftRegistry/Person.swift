@@ -14,20 +14,13 @@
 // Copyright © 2026 CreaTECH Solutions (Stewart Lynch). All rights reserved.
 
 
-import SwiftUI
+import Foundation
+import SQLiteData
 
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
-
-#Preview {
-    ContentView()
+@Table("people")
+struct Person: Identifiable {
+    let id: UUID
+    var name = ""
+    var birthDate: Date?
+    var notes = ""
 }

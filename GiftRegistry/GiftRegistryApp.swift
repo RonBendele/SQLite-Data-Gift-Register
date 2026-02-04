@@ -13,14 +13,26 @@
 //----------------------------------------------
 // Copyright © 2026 CreaTECH Solutions (Stewart Lynch). All rights reserved.
 
-
+import SQLiteData
 import SwiftUI
 
 @main
 struct GiftRegistryApp: App {
+    init() {
+        prepareDependencies {
+            do {
+                try $0.bootstrapDatabase()
+            } catch {
+                fatalError("Failed to bootstrap database: \(error)")
+            }
+        }
+    }
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            PersonListView()
+                .onAppear {
+                    print("Database:\n\(URL.applicationSupportDirectory.path(percentEncoded: false))")
+                }
         }
     }
 }
