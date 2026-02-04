@@ -1,4 +1,4 @@
-# SQLiteData Part 1: Schema and CRUD
+# SQLiteData Part 1: Setup and Schema
 
 ![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the first video on creating a **Gift Registry** app with **SQLiteData**
 
