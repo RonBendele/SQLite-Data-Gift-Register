@@ -17,10 +17,8 @@ import SQLiteData
 import SwiftUI
 
 struct PersonListView: View {
-//    @FetchAll private var people: [Person]
     @FetchAll(Person.order(by: \.name)) private var people
     @Dependency(\.defaultDatabase) var database
-//    @State private var newPerson = false
     @State private var person: Person.Draft?
     var body: some View {
         NavigationStack {
@@ -71,16 +69,12 @@ struct PersonListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-//                        newPerson = true
                         person = Person.Draft()
                     } label: {
                         Image(systemName: "plus.circle.fill")
                     }
                 }
             }
-//            .sheet(isPresented: $newPerson) {
-//                PersonForm()
-//            }
             .sheet(item: $person) { person in
                 PersonForm(person: person)
             }
