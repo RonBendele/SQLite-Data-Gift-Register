@@ -24,3 +24,5 @@ struct Person: Identifiable {
     var birthDate: Date?
     var notes = ""
 }
+
+extension Person.Draft: Identifiable {}
