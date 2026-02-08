@@ -17,9 +17,8 @@ import SQLiteData
 import SwiftUI
 
 struct PersonListView: View {
+//    @FetchAll private var people: [Person]
     @FetchAll(Person.order(by: \.name)) private var people
-    @Dependency(\.defaultDatabase) var database
-    @State private var person: Person.Draft?
     var body: some View {
         NavigationStack {
             Group {
@@ -42,42 +41,11 @@ struct PersonListView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
-                        .swipeActions(edge: .leading) {
-                            Button {
-                                self.person = Person.Draft(person)
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            .tint(.yellow)
-                        }
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                withErrorReporting {
-                                    try database.write { db in
-                                        try Person
-                                            .delete(person)
-                                            .execute(db)
-                                    }
-                                }
-                            }
-                        }
                     }
                     .listStyle(.plain)
                 }
             }
             .navigationTitle("People")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        person = Person.Draft()
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                    }
-                }
-            }
-            .sheet(item: $person) { person in
-                PersonForm(person: person)
-            }
         }
     }
 }
