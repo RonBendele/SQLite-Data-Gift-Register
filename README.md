@@ -1,8 +1,13 @@
-# SQLiteData Part 1: Setup and Schema
+# SQLiteData Part 3: Observable Models and Dynamic Sorting and Filtering
 
-![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the first video on creating a **Gift Registry** app with **SQLiteData**
+![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the third video on creating a **Gift Registry** app with **SQLiteData**
 
-Release Date: Mar 29, 2026
+This also serves as the starter project code for the fourth video in the series.
+
+Part 3 Video:
+Roelease Date:  April 12, 2026
+
+Part 4 Release Date: April 19, 2026
 
 If you want to support my work, you can - </br>
 
