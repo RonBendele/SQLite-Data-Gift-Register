@@ -5,7 +5,7 @@
 This also serves as the starter project code for the fourth video in the series.
 
 Part 3 Video:
-Roelease Date:  April 12, 2026
+Release Date:  April 12, 2026
 
 Part 4 Release Date: April 19, 2026
 
