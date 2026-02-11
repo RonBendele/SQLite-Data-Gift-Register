@@ -1,10 +1,10 @@
 # SQLiteData Part 2: CRUD Operations
 
-![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the first video on creating a **Gift Registry** app with **SQLiteData**
+![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the second video on creating a **Gift Registry** app with **SQLiteData**
 This also serves as the starter project code for the third video in the series.
 
 Part 2 Video:
-Roelease Date:  April 5, 2026
+Release Date:  April 5, 2026
 
 Part 3 Release Date: April 12, 2026
 
