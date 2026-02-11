@@ -1,9 +1,10 @@
 # SQLiteData Part 1: Setup and Schema
 
 ![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the first video on creating a **Gift Registry** app with **SQLiteData**
-This also serves as the Starter Project code for the third video in this series.
+This also serves as the Starter Project code for the second video in this series.
+
 Part 1 Video:
-Roelease Date: March 29, 2026
+Release Date: March 29, 2026
 
 Part 2 Release Date: April 5, 2026
 
