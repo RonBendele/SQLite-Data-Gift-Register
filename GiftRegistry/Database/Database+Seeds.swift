@@ -46,6 +46,53 @@ extension DependencyValues {
                 Person(id: UUID(17), name: "Benjamin", notes: "Chess club")
                 Person(id: UUID(18), name: "Charlotte", birthDate: formatter.date(from: "1990-04-11"), notes: "Hiking and photography")
                 Person(id: UUID(19), name: "Ethan", notes: "Cooking classes on weekends")
+                
+                // Gifts for Mom (3 gifts)
+                Gift(id: UUID(0), name: "Gardening Tool Set", price: 49.99, personID: UUID(0))
+                Gift(id: UUID(1), name: "Cookbook Collection", price: 35.00, isPurchased: true, personID: UUID(0))
+                Gift(id: UUID(2), name: "Herb Garden Kit", price: 24.99, personID: UUID(0))
+
+                // Gifts for Dad (2 gifts)
+                Gift(id: UUID(3), name: "Golf Club Set", price: 299.99, personID: UUID(1))
+                Gift(id: UUID(4), name: "Mystery Novel Bundle", price: 45.00, isPurchased: true, personID: UUID(1))
+
+                // Gifts for Sarah (4 gifts)
+                Gift(id: UUID(5), name: "Watercolor Paint Set", price: 68.50, personID: UUID(2))
+                Gift(id: UUID(6), name: "Premium Sketchbook", price: 22.99, personID: UUID(2))
+                Gift(id: UUID(7), name: "Artist Easel", price: 125.00, personID: UUID(2))
+                Gift(id: UUID(8), name: "Colored Pencil Set", price: 42.00, isPurchased: true, personID: UUID(2))
+
+                // Gifts for Grandma (1 gift)
+                Gift(id: UUID(9), name: "Yarn Collection", price: 55.00, personID: UUID(3))
+
+                // No gifts for Grandpa
+
+                // Gifts for Uncle Joe (2 gifts)
+                Gift(id: UUID(10), name: "BBQ Smoker", price: 399.99, personID: UUID(5))
+                Gift(id: UUID(11), name: "Spice Rub Set", price: 28.50, isPurchased: true, personID: UUID(5))
+
+                // No gifts for Aunt Lisa
+
+                // Gifts for Cousin Mike (3 gifts)
+                Gift(id: UUID(12), name: "PlayStation 5 Game", price: 69.99, personID: UUID(7))
+                Gift(id: UUID(13), name: "Limited Edition Sneakers", price: 180.00, personID: UUID(7))
+                Gift(id: UUID(14), name: "Gaming Headset", price: 89.99, isPurchased: true, personID: UUID(7))
+
+                // Gifts for Emma (1 gift)
+                Gift(id: UUID(15), name: "Espresso Machine", price: 249.99, personID: UUID(8))
+
+                // No gifts for Oliver, Ava, Liam
+
+                // Gifts for Mia (2 gifts)
+                Gift(id: UUID(16), name: "Bestseller Book Set", price: 55.00, personID: UUID(12))
+                Gift(id: UUID(17), name: "Reading Light", price: 32.99, isPurchased: true, personID: UUID(12))
+
+                // No gifts for Noah, Sophia, James, Isabella, Benjamin
+
+                // Gifts for Charlotte (1 gift)
+                Gift(id: UUID(18), name: "Hiking Backpack", price: 129.99, personID: UUID(18))
+
+                // No gifts for Ethan
             }
         }
     }

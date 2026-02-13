@@ -113,29 +113,27 @@ struct PersonListView: View {
                     ContentUnavailableView("No People", systemImage: "person.2")
                 } else {
                     List(model.people) { person in
-                        VStack(alignment: .leading) {
-                            HStack {
-                                Text(person.name)
-                                    .font(.headline)
-                                Spacer()
-                                if let birthDate = person.birthDate {
-                                    Text(birthDate, format: .dateTime.month(.abbreviated).day().year())
-                                        .font(.subheadline)
-                                        .foregroundStyle(.secondary)
+                        NavigationLink {
+                            PersonForm(person: Person.Draft(person))
+                        } label: {
+                            VStack(alignment: .leading) {
+                                HStack {
+                                    Text(person.name)
+                                        .font(.headline)
+                                    Spacer()
+                                    if let birthDate = person.birthDate {
+                                        Text(birthDate, format: .dateTime.month(.abbreviated).day().year())
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
+                                Text(person.notes)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
                             }
-                            Text(person.notes)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
                         }
-                        .swipeActions(edge: .leading) {
-                            Button {
-                                model.person = Person.Draft(person)
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            .tint(.yellow)
-                        }
+
+                       
                         .swipeActions(edge: .trailing) {
                             Button(role: .destructive) {
                                 model.deleteButtonTapped(person)
@@ -185,7 +183,9 @@ struct PersonListView: View {
                 }
             }
             .sheet(item: $model.person) { person in
-                PersonForm(person: person)
+                NavigationStack {
+                    PersonForm(person: person)
+                }
             }
         }
     }

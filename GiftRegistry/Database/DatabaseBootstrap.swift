@@ -39,6 +39,26 @@ extension DependencyValues {
             )
             .execute(db)
         }
+        migrator.registerMigration("Create table and index for 'gifts'") { db in
+            try #sql(
+                """
+                CREATE TABLE "gifts" (
+                    "id" TEXT PRIMARY KEY NOT NULL ON CONFLICT REPLACE DEFAULT (uuid()),
+                    "name" TEXT NOT NULL DEFAULT '',
+                    "price" REAL,
+                    "isPurchased" INTEGER NOT NULL DEFAULT 0,
+                    "personID" TEXT NOT NULL REFERENCES "people"("id") ON DELETE CASCADE
+                ) STRICT
+                """
+            )
+            .execute(db)
+            try #sql(
+                """
+                CREATE INDEX "index_gifts_on_personID" ON "gifts"("personID")
+                """
+            )
+            .execute(db)
+        }
         try migrator.migrate(database)
         defaultDatabase = database
     }
