@@ -1,4 +1,4 @@
-# SQLiteData Part 5: One to Many Relationships Part 3 and  Table Joins
+# SQLiteData Part 5: One to Many Relationships Part 2 and  Table Joins
 
 ![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the fifth video on creating a **Gift Registry** app with **SQLiteData**
 
