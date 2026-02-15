@@ -74,10 +74,34 @@ class PersonFormModel {
             }
         }
     }
+    
+    func deleteButtonTapped(_ gift: Gift) {
+        withErrorReporting {
+            try database.write { db in
+                try Gift
+                    .delete(gift)
+                    .execute(db)
+            }
+        }
+    }
+    
+    func purchaseButtonTapped(_ gift: Gift) {
+        withErrorReporting {
+            try database.write { db in
+                try Gift
+                    .find(gift.id)
+                    .update {
+                        $0.isPurchased.toggle()
+                    }
+                    .execute(db)
+            }
+        }
+    }
 }
 
 struct PersonForm: View {
     @State private var model: PersonFormModel
+    @State private var gift: Gift.Draft?
     init(person: Person.Draft) {
         self._model = State(initialValue: PersonFormModel(person: person))
     }
@@ -112,7 +136,7 @@ struct PersonForm: View {
                             ForEach(model.gifts) { gift in
                                 HStack {
                                     Button {
-                                        // purchaseButtonTapped
+                                        model.purchaseButtonTapped(gift)
                                     } label: {
                                         Image(systemName: gift.isPurchased ? "checkmark.circle.fill" : "circle")
                                             .foregroundStyle(gift.isPurchased ? .green : .secondary)
@@ -122,7 +146,7 @@ struct PersonForm: View {
                                         Text(gift.name)
                                             .strikethrough(gift.isPurchased)
                                         if let price = gift.price {
-                                            Text(price, format: .currency(code: "USD"))
+                                            Text(price, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
                                                 .font(.caption)
                                                 .foregroundStyle(.secondary)
                                         }
@@ -130,6 +154,7 @@ struct PersonForm: View {
                                     Spacer()
                                     Button {
                                         // EditButton Tapped
+                                        self.gift = Gift.Draft(gift)
                                     } label: {
                                         Image(systemName: "pencil.circle")
                                             .foregroundStyle(.blue)
@@ -138,7 +163,7 @@ struct PersonForm: View {
                                 }
                                 .swipeActions(edge: .trailing) {
                                     Button(role: .destructive) {
-                                        // Delete Gift button Tapped
+                                        model.deleteButtonTapped(gift)
                                     }
                                 }
                             }
@@ -149,6 +174,9 @@ struct PersonForm: View {
                             Spacer()
                             Button {
                                 // NewGiftButtonTapped
+                                if let personID = model.person.id {
+                                    gift = Gift.Draft(personID: personID)
+                                }
                             } label: {
                                 Image(systemName: "plus.circle.fill")
                             }
@@ -173,6 +201,9 @@ struct PersonForm: View {
                     }
                 }
             }
+            .sheet(item: $gift) { gift in
+                GiftForm(gift: gift)
+            }
     }
 }
 
@@ -180,8 +211,8 @@ struct PersonFormPreview: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             PersonForm(person: Person.Draft())
-                .previewDisplayName("New Person")
         }
+        .previewDisplayName("New Person")
     }
 }
 

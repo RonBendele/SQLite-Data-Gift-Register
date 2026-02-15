@@ -25,3 +25,5 @@ struct Gift: Identifiable {
     var isPurchased = false
     var personID: Person.ID
 }
+
+extension Gift.Draft: Identifiable {}
