@@ -135,7 +135,7 @@ struct GiftForm: View {
                 }
                 Group {
                     if let imageData = model.giftImageData,
-                    let giftImage = UIImage(data: imageData){
+                       let giftImage = UIImage(data: imageData){
                         Image(uiImage: giftImage)
                             .resizable()
                             .scaledToFit()
@@ -145,8 +145,7 @@ struct GiftForm: View {
                             .scaledToFit()
                     }
                 }
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding()
+                .padding()
                 HStack {
                     Spacer()
                     Button("Update Photo", systemImage: "photo") {
