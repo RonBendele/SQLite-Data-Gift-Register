@@ -34,8 +34,19 @@ class PersonFormModel {
     @ObservationIgnored
     @Dependency(\.defaultDatabase) var database
     
+    @Selection
+    struct GiftWithImageData: Identifiable {
+        let gift: Gift
+        let giftImageData: Data?
+        
+        var id: Gift.ID { gift.id }
+    }
+//    @ObservationIgnored
+//    @FetchAll(Gift.none) var gifts
+    
     @ObservationIgnored
-    @FetchAll(Gift.none) var gifts
+    @FetchAll(GiftWithImageData.none) var giftsWithImageData
+    
     
     init(person: Person.Draft) {
         self.person = person
@@ -43,24 +54,46 @@ class PersonFormModel {
         birthDate = person.birthDate
         notes = person.notes
         Task {
-            await loadGifts()
+//            await loadGifts()
+            await loadGiftsWithImageData()
         }
     }
     
-    func loadGifts() async {
+    func loadGiftsWithImageData() async {
         await withErrorReporting {
-            _ = try await $gifts.load(
-                Gift.all
-                    .order {
-                        ($0.isPurchased.desc(), $0.name)
-                    }
-                    .where {
-                        $0.personID == person.id
-                    },
-                animation: .default
+            _ = try await $giftsWithImageData.load(
+                    Gift
+                        .group(by: \.id)
+                        .order {
+                            ($0.isPurchased.desc(), $0.name)
+                        }
+                        .where {
+                            $0.personID == person.id
+                        }
+                        .leftJoin(GiftAsset.all) {
+                            $0.id.eq($1.giftID)
+                        }
+                        .select {
+                            GiftWithImageData.Columns(gift: $0, giftImageData: $1.giftImageData)
+                        }, animation: .default
                 )
         }
     }
+    
+//    func loadGifts() async {
+//        await withErrorReporting {
+//            _ = try await $gifts.load(
+//                Gift.all
+//                    .order {
+//                        ($0.isPurchased.desc(), $0.name)
+//                    }
+//                    .where {
+//                        $0.personID == person.id
+//                    },
+//                animation: .default
+//                )
+//        }
+//    }
     
     func addPersonButtonTapped() {
         person.name = name
@@ -133,7 +166,8 @@ struct PersonForm: View {
                 if model.person.id != nil {
                     Section  {
                         List {
-                            ForEach(model.gifts) { gift in
+                            ForEach(model.giftsWithImageData) { giftWithImageData in
+                                let gift = giftWithImageData.gift
                                 HStack {
                                     Button {
                                         model.purchaseButtonTapped(gift)
@@ -142,6 +176,14 @@ struct PersonForm: View {
                                             .foregroundStyle(gift.isPurchased ? .green : .secondary)
                                     }
                                     .buttonStyle(.plain)
+                                    if let imageData = giftWithImageData.giftImageData,
+                                       let image = UIImage(data: imageData) {
+                                        Image(uiImage: image)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 50, height: 50)
+                                            .clipShape(.circle)
+                                    }
                                     VStack(alignment: .leading) {
                                         Text(gift.name)
                                             .strikethrough(gift.isPurchased)

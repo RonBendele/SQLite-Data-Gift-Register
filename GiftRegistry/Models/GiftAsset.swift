@@ -15,3 +15,13 @@
 
 
 import Foundation
+import SQLiteData
+
+@Table
+struct GiftAsset: Identifiable {
+    @Column(primaryKey: true)
+    let giftID: Gift.ID
+    var giftImageData: Data
+    
+    var id: Gift.ID { giftID }
+}

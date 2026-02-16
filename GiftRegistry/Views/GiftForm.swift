@@ -15,6 +15,7 @@
 
 import SQLiteData
 import SwiftUI
+import PhotosUI
 
 @MainActor
 @Observable
@@ -23,6 +24,9 @@ class GiftFormModel {
     var name:String
     var price: Double?
     var isPurchased: Bool
+    var photosPickerItem: PhotosPickerItem?
+    var isPhotoPickerPresented = false
+    var giftImageData: Data?
     
     init(gift: Gift.Draft) {
         self.gift = gift
@@ -40,11 +44,68 @@ class GiftFormModel {
             gift.price = price
             gift.isPurchased = isPurchased
             try database.write { db in
-                try Gift
+                let giftID = try Gift
                     .upsert { gift }
-                    .execute(db)
+                    .returning(\.id)
+                    .fetchOne(db)
+                guard let giftID else { return }
+                if let giftImageData {
+                    try GiftAsset
+                        .upsert {
+                            GiftAsset(giftID: giftID, giftImageData: giftImageData)
+                        }
+                        .execute(db)
+                } else {
+                    try GiftAsset
+                        .find(giftID)
+                        .delete()
+                        .execute(db)
+                }
             }
         }
+    }
+    
+    func fetchGiftImage() async {
+        if let giftID = gift.id {
+            await withErrorReporting {
+              giftImageData =  try await database.read { db in
+                    try GiftAsset
+                      .where { $0.giftID.eq(giftID) }
+                      .select( \.giftImageData)
+                      .fetchOne(db)
+                }
+            }
+        }
+    }
+    
+    func updatePhotos() async {
+        if let photosPickerItem {
+            await withErrorReporting {
+                giftImageData = try await photosPickerItem.loadTransferable(type: Data.self)
+                    .flatMap({ data in
+                        resizedAndOptimizedImageData(from: data)
+                    })
+                self.photosPickerItem = nil
+            }
+        }
+    }
+    
+    func resizedAndOptimizedImageData(from data: Data, maxWidth: CGFloat = 1000) -> Data? {
+        guard let image = UIImage(data: data) else { return nil }
+
+        let originalSize = image.size
+        let scaleFactor = min(1, maxWidth / originalSize.width)
+        let newSize = CGSize(
+            width: originalSize.width * scaleFactor,
+            height: originalSize.height * scaleFactor
+        )
+
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1)
+        image.draw(in: CGRect(origin: .zero, size: newSize))
+        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return resizedImage?.jpegData(compressionQuality: 0.8)
     }
 }
 
@@ -72,6 +133,35 @@ struct GiftForm: View {
                     }
                     Toggle("Purchased", isOn: $model.isPurchased)
                 }
+                Group {
+                    if let imageData = model.giftImageData,
+                    let giftImage = UIImage(data: imageData){
+                        Image(uiImage: giftImage)
+                            .resizable()
+                            .scaledToFit()
+                    } else {
+                        Image(systemName: "photo")
+                            .resizable()
+                            .scaledToFit()
+                    }
+                }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding()
+                HStack {
+                    Spacer()
+                    Button("Update Photo", systemImage: "photo") {
+                        model.isPhotoPickerPresented = true
+                    }
+                    .buttonStyle(.glass)
+                    if model.giftImageData != nil {
+                        Spacer()
+                        Button("Remove", systemImage: "xmark.circle.fill") {
+                            model.giftImageData = nil
+                        }
+                        .buttonStyle(.glass)
+                    }
+                    Spacer()
+                }
             }
             .navigationTitle("Gift")
             .navigationBarTitleDisplayMode(.inline)
@@ -88,6 +178,15 @@ struct GiftForm: View {
                     }
                     .disabled(model.name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
+            }
+            .photosPicker(isPresented: $model.isPhotoPickerPresented, selection: $model.photosPickerItem)
+            .onChange(of: model.photosPickerItem) {
+                Task {
+                    await model.updatePhotos()
+                }
+            }
+            .task {
+                await model.fetchGiftImage()
             }
         }
     }

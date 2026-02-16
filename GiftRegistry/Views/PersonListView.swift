@@ -29,8 +29,6 @@ class PersonListModel {
     enum SortField {
         case name, birthdate
     }
-//    @ObservationIgnored
-//    @FetchAll(Person.none) var people
     
     @ObservationIgnored
     @FetchAll(PersonWithGiftCount.none) var peopleWithGiftCount
@@ -46,6 +44,8 @@ class PersonListModel {
             }
         }
     }
+    
+    var isLoading = true
     
     var sortField: SortField = .name {
         didSet {
@@ -78,6 +78,16 @@ class PersonListModel {
             }
         }
     }
+    
+    func seedDatabaseButtonTapped() {
+        @Dependency(\.self) var dependencies
+        withErrorReporting {
+            try dependencies.seedDatabaseForPreviews()
+            Task {
+                await reloadPeopleAndCount()
+            }
+        }
+    }
     var searchTask: Task<Void, Never>?
     
     func reloadPeopleAndCount() async {
@@ -104,7 +114,6 @@ class PersonListModel {
                             }
                         }
                         .where {
-//                            $0.name.like("%\(searchText)%")
                             $0.name.contains(searchText) ||
                             $0.notes.contains(searchText)
                         }
@@ -117,41 +126,9 @@ class PersonListModel {
                     animation: .default
                     )
             }
+            isLoading = false
         }
     }
-    
-//    func reloadData() async {
-//        searchTask?.cancel()
-//        searchTask = Task {
-//            await withErrorReporting {
-//                _ = try await $people.load(
-//                    Person.all
-//                        .order {
-//                            switch sortField {
-//                            case .name:
-//                                if sortAscending {
-//                                    $0.name
-//                                } else {
-//                                    $0.name.desc()
-//                                }
-//                            case .birthdate:
-//                                if sortAscending {
-//                                    $0.birthDate
-//                                } else {
-//                                    $0.birthDate.desc()
-//                                }
-//                            }
-//                        }
-//                        .where {
-////                            $0.name.like("%\(searchText)%")
-//                            $0.name.contains(searchText) ||
-//                            $0.notes.contains(searchText)
-//                        },
-//                    animation: .default
-//                )
-//            }
-//        }
-//    }
 }
 
 struct PersonListView: View {
@@ -159,43 +136,54 @@ struct PersonListView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if model.peopleWithGiftCount.isEmpty {
-                    ContentUnavailableView("No People", systemImage: "person.2")
+                if model.isLoading {
+                    ProgressView()
                 } else {
-                    List(model.peopleWithGiftCount) { personWithGiftCount in
-                        let person = personWithGiftCount.person
-                        NavigationLink {
-                            PersonForm(person: Person.Draft(person))
-                        } label: {
-                            VStack(alignment: .leading) {
-                                HStack {
-                                    Text(person.name)
-                                        .font(.headline)
-                                    Spacer()
-                                    if let birthDate = person.birthDate {
-                                        Text(birthDate, format: .dateTime.month(.abbreviated).day().year())
-                                            .font(.subheadline)
-                                            .foregroundStyle(.secondary)
+                    if model.peopleWithGiftCount.isEmpty {
+                        ContentUnavailableView("No People", systemImage: "person.2")
+#if DEBUG
+#if targetEnvironment(simulator)
+                        Button("Seed Database", systemImage: "cylinder.fill") {
+                            model.seedDatabaseButtonTapped()
+                        }
+#endif
+#endif
+                    } else {
+                        List(model.peopleWithGiftCount) { personWithGiftCount in
+                            let person = personWithGiftCount.person
+                            NavigationLink {
+                                PersonForm(person: Person.Draft(person))
+                            } label: {
+                                VStack(alignment: .leading) {
+                                    HStack {
+                                        Text(person.name)
+                                            .font(.headline)
+                                        Spacer()
+                                        if let birthDate = person.birthDate {
+                                            Text(birthDate, format: .dateTime.month(.abbreviated).day().year())
+                                                .font(.subheadline)
+                                                .foregroundStyle(.secondary)
+                                        }
                                     }
+                                    Text(person.notes)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                    Text("^[\(personWithGiftCount.giftCount) gifts](inflect: true)")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
                                 }
-                                Text(person.notes)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                Text("^[\(personWithGiftCount.giftCount) gifts](inflect: true)")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                            }
+                            
+                            
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    model.deleteButtonTapped(person)
+                                }
                             }
                         }
-
-                       
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                model.deleteButtonTapped(person)
-                            }
-                        }
+                        .listStyle(.plain)
                     }
-                    .listStyle(.plain)
                 }
             }
             .searchable(text: $model.searchText, prompt: "Filter by name or note")
@@ -212,12 +200,20 @@ struct PersonListView: View {
                             Button {
                                 model.sortField = .name
                             } label: {
-                                Label("Name", systemImage: model.sortField == .name ? "checkmark" : "")
+                                if model.sortField == .name {
+                                    Label("Name", systemImage: "checkmark" )
+                                } else {
+                                    Text("Name")
+                                }
                             }
                             Button {
                                 model.sortField = .birthdate
                             } label: {
-                                Label("Birthdate", systemImage: model.sortField == .birthdate ? "checkmark" : "")
+                                if model.sortField == .birthdate {
+                                    Label("Birthdate", systemImage: "checkmark" )
+                                } else {
+                                    Text("Birthdate")
+                                }
                             }
                         }
                         Section("Order") {

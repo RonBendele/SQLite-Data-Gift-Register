@@ -59,6 +59,17 @@ extension DependencyValues {
             )
             .execute(db)
         }
+        migrator.registerMigration("Create 'giftAssets' table") { db in
+            try #sql(
+                """
+                CREATE TABLE "giftAssets" (
+                    "giftID" TEXT NOT NULL PRIMARY KEY REFERENCES "gifts"("id") ON DELETE CASCADE,
+                    "giftImageData" BLOB NOT NULL
+                ) STRICT
+                """
+            )
+            .execute(db)
+        }
         try migrator.migrate(database)
         defaultDatabase = database
     }
