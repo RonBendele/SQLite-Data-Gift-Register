@@ -68,11 +68,11 @@ class GiftFormModel {
     func fetchGiftImage() async {
         if let giftID = gift.id {
             await withErrorReporting {
-              giftImageData =  try await database.read { db in
+                giftImageData =  try await database.read { db in
                     try GiftAsset
-                      .where { $0.giftID.eq(giftID) }
-                      .select( \.giftImageData)
-                      .fetchOne(db)
+                        .where { $0.giftID.eq(giftID) }
+                        .select( \.giftImageData)
+                        .fetchOne(db)
                 }
             }
         }
@@ -92,19 +92,19 @@ class GiftFormModel {
     
     func resizedAndOptimizedImageData(from data: Data, maxWidth: CGFloat = 1000) -> Data? {
         guard let image = UIImage(data: data) else { return nil }
-
+        
         let originalSize = image.size
         let scaleFactor = min(1, maxWidth / originalSize.width)
         let newSize = CGSize(
             width: originalSize.width * scaleFactor,
             height: originalSize.height * scaleFactor
         )
-
+        
         UIGraphicsBeginImageContextWithOptions(newSize, false, 1)
         image.draw(in: CGRect(origin: .zero, size: newSize))
         let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-
+        
         return resizedImage?.jpegData(compressionQuality: 0.8)
     }
 }
@@ -135,7 +135,7 @@ struct GiftForm: View {
                 }
                 Group {
                     if let imageData = model.giftImageData,
-                    let giftImage = UIImage(data: imageData){
+                       let giftImage = UIImage(data: imageData){
                         Image(uiImage: giftImage)
                             .resizable()
                             .scaledToFit()
@@ -145,8 +145,7 @@ struct GiftForm: View {
                             .scaledToFit()
                     }
                 }
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding()
+                .padding()
                 HStack {
                     Spacer()
                     Button("Update Photo", systemImage: "photo") {
@@ -195,17 +194,17 @@ struct GiftForm: View {
 
 #Preview("Existing Gift") {
     let gift = prepareDependencies {
-         do {
-             try $0.bootstrapDatabase()
-             try $0.seedDatabaseForPreviews()
-             return try $0.defaultDatabase.read { db in
-                 try Gift.find(UUID(0))
-                     .fetchOne(db)!
-             }
-         } catch {
-             fatalError("Failed to bootstrap database for previews: \(error)")
-         }
-     }
+        do {
+            try $0.bootstrapDatabase()
+            try $0.seedDatabaseForPreviews()
+            return try $0.defaultDatabase.read { db in
+                try Gift.find(UUID(0))
+                    .fetchOne(db)!
+            }
+        } catch {
+            fatalError("Failed to bootstrap database for previews: \(error)")
+        }
+    }
     GiftForm(gift: Gift.Draft(gift))
 }
 
