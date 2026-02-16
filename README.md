@@ -1,13 +1,8 @@
-# SQLiteData Part 6: Assets
+# SQLiteData Part 7: Many-to-Many Relationships
 
-![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the fifth video on creating a **Gift Registry** app with **SQLiteData**
+![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the **sixth** video on creating a **Gift Registry** app with **SQLiteData**
 
-This also serves as the starter project code for the fifth video in the series.
-
-Part 5 Video:
-Release Date:  April 19, 2026
-
-Part 6 Release Date: April 26, 2026
+This also serves as the starter project code for the seventh video in the series.
 
 If you want to support my work, you can - </br>
 
