@@ -2,7 +2,7 @@
 
 ![AppIcon128](Images/AppIcon128.png) This is the **Starter Project** for the first video on creating a **Gift Registry** app with **SQLiteData**
 
-Release Date: Mar 29, 2026
+
 
 If you want to support my work, you can - </br>
 
