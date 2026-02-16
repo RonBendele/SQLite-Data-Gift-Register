@@ -1,4 +1,4 @@
-# SQLiteData Part 1: Setup and Schema
+# SQLiteData GiftRegistry - Starter Project
 
 ![AppIcon128](Images/AppIcon128.png) This is the **Starter Project** for the first video on creating a **Gift Registry** app with **SQLiteData**
 
