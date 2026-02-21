@@ -114,10 +114,11 @@ struct GiftListView: View {
                     Image(systemName: "plus.circle.fill")
                 }
             }
+            .sheet(item: $gift) { gift in
+                GiftForm(gift: gift)
+            }
         }
-        .sheet(item: $gift) { gift in
-            GiftForm(gift: gift)
-        }
+       
     }
 }
 
@@ -220,6 +221,9 @@ struct GiftRow: View {
             Button(role: .destructive) {
                 model.deleteButtonTapped(gift)
             }
+        }
+        .sheet(item: $selectedGift) { gift in
+            GiftForm(gift: gift)
         }
     }
 }
