@@ -1,4 +1,4 @@
-# SQLiteData Part 7: Many-to-Many Relationships
+# SQLiteData Part 7: Many-to-Many Relationships Part 1
 
 ![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the **seventh** video on creating a **Gift Registry** app with **SQLiteData**
 

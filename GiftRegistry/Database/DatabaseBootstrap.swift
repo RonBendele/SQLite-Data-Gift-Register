@@ -70,6 +70,28 @@ extension DependencyValues {
             )
             .execute(db)
         }
+        migrator.registerMigration("Create 'occasions' and 'occasionGifts' tables") { db in
+            try #sql(
+                """
+                CREATE TABLE "occasions"(
+                    "id" TEXT PRIMARY KEY NOT NULL ON CONFLICT REPLACE DEFAULT (uuid()),
+                    "name" TEXT NOT NULL DEFAULT '',
+                    "hexColor" TEXT NOT NULL DEFAULT '0000ff'
+                ) STRICT
+                """
+            )
+            .execute(db)
+            try #sql(
+                """
+                CREATE TABLE "occasionGifts"(
+                    "id" TEXT PRIMARY KEY NOT NULL ON CONFLICT REPLACE DEFAULT (uuid()),
+                    "occasionID" TEXT NOT NULL REFERENCES "occasions" ON DELETE CASCADE,
+                    "giftID" TEXT NOT NULL REFERENCES "gifts" ON DELETE CASCADE
+                ) STRICT
+                """
+            )
+            .execute(db)
+        }
         try migrator.migrate(database)
         defaultDatabase = database
     }

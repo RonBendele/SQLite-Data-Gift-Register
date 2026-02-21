@@ -33,67 +33,13 @@ class PersonFormModel {
     }
     @ObservationIgnored
     @Dependency(\.defaultDatabase) var database
-    
-    @Selection
-    struct GiftWithImageData: Identifiable {
-        let gift: Gift
-        let giftImageData: Data?
         
-        var id: Gift.ID { gift.id }
-    }
-//    @ObservationIgnored
-//    @FetchAll(Gift.none) var gifts
-    
-    @ObservationIgnored
-    @FetchAll(GiftWithImageData.none) var giftsWithImageData
-    
-    
     init(person: Person.Draft) {
         self.person = person
         name = person.name
         birthDate = person.birthDate
         notes = person.notes
-        Task {
-//            await loadGifts()
-            await loadGiftsWithImageData()
-        }
     }
-    
-    func loadGiftsWithImageData() async {
-        await withErrorReporting {
-            _ = try await $giftsWithImageData.load(
-                    Gift
-                        .group(by: \.id)
-                        .order {
-                            ($0.isPurchased.desc(), $0.name)
-                        }
-                        .where {
-                            $0.personID == person.id
-                        }
-                        .leftJoin(GiftAsset.all) {
-                            $0.id.eq($1.giftID)
-                        }
-                        .select {
-                            GiftWithImageData.Columns(gift: $0, giftImageData: $1.giftImageData)
-                        }, animation: .default
-                )
-        }
-    }
-    
-//    func loadGifts() async {
-//        await withErrorReporting {
-//            _ = try await $gifts.load(
-//                Gift.all
-//                    .order {
-//                        ($0.isPurchased.desc(), $0.name)
-//                    }
-//                    .where {
-//                        $0.personID == person.id
-//                    },
-//                animation: .default
-//                )
-//        }
-//    }
     
     func addPersonButtonTapped() {
         person.name = name
@@ -107,34 +53,10 @@ class PersonFormModel {
             }
         }
     }
-    
-    func deleteButtonTapped(_ gift: Gift) {
-        withErrorReporting {
-            try database.write { db in
-                try Gift
-                    .delete(gift)
-                    .execute(db)
-            }
-        }
-    }
-    
-    func purchaseButtonTapped(_ gift: Gift) {
-        withErrorReporting {
-            try database.write { db in
-                try Gift
-                    .find(gift.id)
-                    .update {
-                        $0.isPurchased.toggle()
-                    }
-                    .execute(db)
-            }
-        }
-    }
 }
 
 struct PersonForm: View {
     @State private var model: PersonFormModel
-    @State private var gift: Gift.Draft?
     init(person: Person.Draft) {
         self._model = State(initialValue: PersonFormModel(person: person))
     }
@@ -163,67 +85,8 @@ struct PersonForm: View {
                     }
                 }
                 TextField("Notes", text: $model.notes, axis: .vertical)
-                if model.person.id != nil {
-                    Section  {
-                        List {
-                            ForEach(model.giftsWithImageData) { giftWithImageData in
-                                let gift = giftWithImageData.gift
-                                HStack {
-                                    Button {
-                                        model.purchaseButtonTapped(gift)
-                                    } label: {
-                                        Image(systemName: gift.isPurchased ? "checkmark.circle.fill" : "circle")
-                                            .foregroundStyle(gift.isPurchased ? .green : .secondary)
-                                    }
-                                    .buttonStyle(.plain)
-                                    if let imageData = giftWithImageData.giftImageData,
-                                       let image = UIImage(data: imageData) {
-                                        Image(uiImage: image)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 50, height: 50)
-                                            .clipShape(.circle)
-                                    }
-                                    VStack(alignment: .leading) {
-                                        Text(gift.name)
-                                            .strikethrough(gift.isPurchased)
-                                        if let price = gift.price {
-                                            Text(price, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-                                    Spacer()
-                                    Button {
-                                        // EditButton Tapped
-                                        self.gift = Gift.Draft(gift)
-                                    } label: {
-                                        Image(systemName: "pencil.circle")
-                                            .foregroundStyle(.blue)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                                .swipeActions(edge: .trailing) {
-                                    Button(role: .destructive) {
-                                        model.deleteButtonTapped(gift)
-                                    }
-                                }
-                            }
-                        }
-                    } header:  {
-                        HStack {
-                            Text("Gifts")
-                            Spacer()
-                            Button {
-                                // NewGiftButtonTapped
-                                if let personID = model.person.id {
-                                    gift = Gift.Draft(personID: personID)
-                                }
-                            } label: {
-                                Image(systemName: "plus.circle.fill")
-                            }
-                        }
-                    }
+                if let personID = model.person.id {
+                    GiftListView(personID: personID)
                 }
             }
             .navigationTitle("Person")
@@ -242,9 +105,6 @@ struct PersonForm: View {
                         }
                     }
                 }
-            }
-            .sheet(item: $gift) { gift in
-                GiftForm(gift: gift)
             }
     }
 }

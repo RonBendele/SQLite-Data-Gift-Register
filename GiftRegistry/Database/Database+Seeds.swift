@@ -93,6 +93,39 @@ extension DependencyValues {
                 Gift(id: UUID(18), name: "Hiking Backpack", price: 129.99, personID: UUID(18))
 
                 // No gifts for Ethan
+                
+                // Occasions
+                Occasion(id: UUID(0), name: "Christmas", hexColor: "C0392B")
+                Occasion(id: UUID(1), name: "Birthday", hexColor: "8E44AD")
+                Occasion(id: UUID(2), name: "Valentines Day", hexColor: "E91E8C")
+                Occasion(id: UUID(3), name: "Wedding", hexColor: "D4AF37")
+
+                // OccasionGifts (Many-to-Many join records)
+                OccasionGift(id: UUID(0), occasionID: UUID(0), giftID: UUID(0))
+                OccasionGift(id: UUID(1), occasionID: UUID(0), giftID: UUID(1))
+                OccasionGift(id: UUID(2), occasionID: UUID(1), giftID: UUID(1))
+                OccasionGift(id: UUID(3), occasionID: UUID(2), giftID: UUID(2))
+                OccasionGift(id: UUID(4), occasionID: UUID(1), giftID: UUID(3))
+                OccasionGift(id: UUID(5), occasionID: UUID(0), giftID: UUID(3))
+                OccasionGift(id: UUID(6), occasionID: UUID(3), giftID: UUID(3))
+                OccasionGift(id: UUID(7), occasionID: UUID(1), giftID: UUID(4))
+                OccasionGift(id: UUID(8), occasionID: UUID(0), giftID: UUID(5))
+                OccasionGift(id: UUID(9), occasionID: UUID(1), giftID: UUID(5))
+                OccasionGift(id: UUID(10), occasionID: UUID(3), giftID: UUID(7))
+                OccasionGift(id: UUID(11), occasionID: UUID(0), giftID: UUID(8))
+                OccasionGift(id: UUID(12), occasionID: UUID(1), giftID: UUID(9))
+                OccasionGift(id: UUID(13), occasionID: UUID(0), giftID: UUID(9))
+                OccasionGift(id: UUID(14), occasionID: UUID(1), giftID: UUID(11))
+                OccasionGift(id: UUID(15), occasionID: UUID(2), giftID: UUID(11))
+                OccasionGift(id: UUID(16), occasionID: UUID(0), giftID: UUID(12))
+                OccasionGift(id: UUID(17), occasionID: UUID(1), giftID: UUID(12))
+                OccasionGift(id: UUID(18), occasionID: UUID(3), giftID: UUID(12))
+                OccasionGift(id: UUID(19), occasionID: UUID(1), giftID: UUID(14))
+                OccasionGift(id: UUID(20), occasionID: UUID(2), giftID: UUID(15))
+                OccasionGift(id: UUID(21), occasionID: UUID(3), giftID: UUID(15))
+                OccasionGift(id: UUID(22), occasionID: UUID(0), giftID: UUID(16))
+                OccasionGift(id: UUID(23), occasionID: UUID(1), giftID: UUID(18))
+                OccasionGift(id: UUID(24), occasionID: UUID(0), giftID: UUID(18))
             }
         }
     }
