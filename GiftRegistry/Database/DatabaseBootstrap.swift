@@ -86,7 +86,7 @@ extension DependencyValues {
                 CREATE TABLE "occasionGifts"(
                     "id" TEXT PRIMARY KEY NOT NULL ON CONFLICT REPLACE DEFAULT (uuid()),
                     "occasionID" TEXT NOT NULL REFERENCES "occasions"("id") ON DELETE CASCADE,
-                    "giftID" TEXT NOT NULL REFERENCES "occasions"("id") ON DELETE CASCADE,
+                    "giftID" TEXT NOT NULL REFERENCES "gifts"("id") ON DELETE CASCADE
                 ) STRICT
                 """
             )
