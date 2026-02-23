@@ -1,8 +1,8 @@
-# SQLiteData Part 8: Many-to-Many Relationships Part 2
+# SQLiteData Part 9: CloudKit Sync
 
-![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the **eighth** video on creating a **Gift Registry** app with **SQLiteData**
+![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the **ninth** video on creating a **Gift Registry** app with **SQLiteData**
 
-This also serves as the starter project code for the ninth video in the series.
+This also serves as the starter project code for the tenth video in the series.
 
 If you want to support my work, you can - </br>
 
