@@ -27,12 +27,15 @@ class GiftFormModel {
     var photosPickerItem: PhotosPickerItem?
     var isPhotoPickerPresented = false
     var giftImageData: Data?
+    var selectedOccasions: [Occasion]
+    var editOccasions = false
     
-    init(gift: Gift.Draft) {
+    init(gift: Gift.Draft, selectedOccasions:[Occasion]) {
         self.gift = gift
         name = gift.name
         price = gift.price
         isPurchased = gift.isPurchased
+        self.selectedOccasions = selectedOccasions
     }
     
     @ObservationIgnored
@@ -61,6 +64,29 @@ class GiftFormModel {
                         .delete()
                         .execute(db)
                 }
+                let currentOccasionGiftIDs = try OccasionGift
+                    .where { $0.giftID.eq(giftID)}
+                    .select(\.occasionID)
+                    .fetchAll(db)
+                let selectedOccasionIDs = Set(selectedOccasions.map { $0.id })
+                let occasionIDsToDelete = Set(currentOccasionGiftIDs).subtracting(selectedOccasionIDs)
+                let occasionIDsToInsert = selectedOccasionIDs.subtracting(currentOccasionGiftIDs)
+                // Delete
+                try OccasionGift
+                    .where { $0.giftID.is(gift.id)
+                        && $0.occasionID.in(occasionIDsToDelete)
+                    }
+                    .delete()
+                    .execute(db)
+                
+                // insert
+                try OccasionGift
+                    .insert {
+                        occasionIDsToInsert.map {
+                            OccasionGift.Draft(occasionID: $0, giftID: giftID)
+                        }
+                    }
+                    .execute(db)
             }
         }
     }
@@ -107,13 +133,19 @@ class GiftFormModel {
 
         return resizedImage?.jpegData(compressionQuality: 0.8)
     }
+    
+    func deleteOccasionButtonTapped(_ occasion: Occasion) {
+        if let index = selectedOccasions.firstIndex(where: {$0.id == occasion.id}) {
+            selectedOccasions.remove(at: index)
+        }
+    }
 }
 
 struct GiftForm: View {
     @State private var model: GiftFormModel
     
-    init(gift: Gift.Draft) {
-        self._model = State(initialValue: GiftFormModel(gift: gift))
+    init(gift: Gift.Draft, selectedOccasions: [Occasion]) {
+        self._model = State(initialValue: GiftFormModel(gift: gift, selectedOccasions: selectedOccasions))
     }
     
     @Environment(\.dismiss) var dismiss
@@ -132,6 +164,46 @@ struct GiftForm: View {
                         .multilineTextAlignment(.trailing)
                     }
                     Toggle("Purchased", isOn: $model.isPurchased)
+                    Section {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 15) {
+                                ForEach(model.selectedOccasions) { occasion in
+                                    Text(occasion.name)
+                                        .font(.caption2)
+                                        .padding(.vertical, 3)
+                                        .padding(.horizontal, 8)
+                                        .background(occasion.color, in: .capsule)
+                                        .foregroundStyle(occasion.color.adaptedTextColor)
+                                        .overlay(alignment: .topTrailing) {
+                                            Button {
+                                                withAnimation {
+                                                    model.deleteOccasionButtonTapped(occasion)
+                                                }
+                                            } label: {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .font(.caption)
+                                            }
+                                            .offset(x: 6, y: -6)
+                                        }
+                                }
+                            }
+                            .padding(.top, 8)
+                            .padding(.trailing, 12)
+                        }
+                    } header: {
+                        HStack {
+                            Text("Occasions")
+                            Spacer()
+                            Button {
+                                model.editOccasions = true
+                            } label: {
+                                Image(systemName: "pencil.circle.fill")
+                            }
+                        }
+                        .sheet(isPresented: $model.editOccasions) {
+                            OccasionsList(selectedOccasions: $model.selectedOccasions)
+                        }
+                    }
                 }
                 Group {
                     if let imageData = model.giftImageData,
@@ -193,25 +265,33 @@ struct GiftForm: View {
 
 
 #Preview("Existing Gift") {
-    let gift = prepareDependencies {
+    let (gift, occasions) = prepareDependencies {
          do {
              try $0.bootstrapDatabase()
              try $0.seedDatabaseForPreviews()
              return try $0.defaultDatabase.read { db in
-                 try Gift.find(UUID(0))
+                 let gift = try Gift.find(UUID(3))
                      .fetchOne(db)!
+                 let occasionGiftRecords = try OccasionGift
+                     .fetchAll(db)
+                     .filter { $0.giftID == gift.id }
+                 let occasionIDs = occasionGiftRecords.map(\.occasionID)
+                 let occasions = try Occasion
+                     .fetchAll(db)
+                     .filter { occasionIDs.contains($0.id)}
+                 return(gift,occasions)
              }
          } catch {
              fatalError("Failed to bootstrap database for previews: \(error)")
          }
      }
-    GiftForm(gift: Gift.Draft(gift))
+    GiftForm(gift: Gift.Draft(gift), selectedOccasions: occasions)
 }
 
 struct GiftFormPreview: PreviewProvider {
     static var previews: some View {
         let gift = Gift.Draft(personID: UUID(0))
-        GiftForm(gift: gift)
+        GiftForm(gift: gift, selectedOccasions: [])
             .previewDisplayName("New Gift")
     }
 }
