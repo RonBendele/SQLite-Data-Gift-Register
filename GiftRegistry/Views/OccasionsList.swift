@@ -44,6 +44,8 @@ struct OccasionsList: View {
                         if !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             Button {
                                 if action == .new {
+                                    name = ""
+                                    hexColor = .blue
                                     occasion = Occasion.Draft(name: name, hexColor: hexColor.toHexString)
                                 } else {
                                     occasion?.name = name
