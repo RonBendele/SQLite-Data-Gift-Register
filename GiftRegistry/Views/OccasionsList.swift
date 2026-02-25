@@ -44,8 +44,6 @@ struct OccasionsList: View {
                         if !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             Button {
                                 if action == .new {
-                                    name = ""
-                                    hexColor = .blue
                                     occasion = Occasion.Draft(name: name, hexColor: hexColor.toHexString)
                                 } else {
                                     occasion?.name = name
@@ -83,7 +81,7 @@ struct OccasionsList: View {
                 List {
                     ForEach(allOccasions) { occasion in
                         HStack {
-                            if action != .new {
+                            if action == .none {
                                 if selectedOccasions.contains(where: {$0.id == occasion.id}) {
                                     Button {
                                         if let index = selectedOccasions.firstIndex(where: {$0.id == occasion.id}) {
@@ -108,7 +106,7 @@ struct OccasionsList: View {
                                 .foregroundStyle(occasion.color)
                             Text(occasion.name)
                             Spacer()
-                            if action != .new {
+                            if action == .none {
                                 Button {
                                     withAnimation {
                                         action = .edit
@@ -156,6 +154,8 @@ struct OccasionsList: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        name = ""
+                        hexColor = .blue
                         action = .new
                     } label: {
                         Image(systemName: "plus")
