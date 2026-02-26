@@ -19,7 +19,15 @@ import SQLiteData
 
 extension DependencyValues {
     mutating func bootstrapDatabase() throws {
-        let database = try SQLiteData.defaultDatabase()
+        var configuration = Configuration()
+        configuration.prepareDatabase { db in
+            #if DEBUG
+            db.trace {
+                print($0.expandedDescription)
+            }
+            #endif
+        }
+        let database = try SQLiteData.defaultDatabase(configuration: configuration)
         var migrator = DatabaseMigrator()
         
         #if DEBUG
@@ -94,5 +102,9 @@ extension DependencyValues {
         }
         try migrator.migrate(database)
         defaultDatabase = database
+        defaultSyncEngine = try SyncEngine(
+            for: database,
+            tables: Person.self, Gift.self, GiftAsset.self, OccasionGift.self, Occasion.self
+        )
     }
 }

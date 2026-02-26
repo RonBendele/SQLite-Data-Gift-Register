@@ -133,27 +133,29 @@ class PersonListModel {
 
 struct PersonListView: View {
     @State private var model = PersonListModel()
+    @State private var selectedPersonID: Person.ID?
+    @Dependency(\.defaultSyncEngine) var syncEngine
     var body: some View {
-        NavigationStack {
+        NavigationSplitView {
             Group {
                 if model.isLoading {
                     ProgressView()
                 } else {
                     if model.peopleWithGiftCount.isEmpty {
-                        ContentUnavailableView("No People", systemImage: "person.2")
+                        if !syncEngine.isSynchronizing {
+                            ContentUnavailableView("No People", systemImage: "person.2")
+                        }
 #if DEBUG
 #if targetEnvironment(simulator)
-                        Button("Seed Database", systemImage: "cylinder.fill") {
-                            model.seedDatabaseButtonTapped()
-                        }
+//                        Button("Seed Database", systemImage: "cylinder.fill") {
+//                            model.seedDatabaseButtonTapped()
+//                        }
 #endif
 #endif
                     } else {
-                        List(model.peopleWithGiftCount) { personWithGiftCount in
+                        List(model.peopleWithGiftCount, selection: $selectedPersonID) { personWithGiftCount in
                             let person = personWithGiftCount.person
-                            NavigationLink {
-                                PersonForm(person: Person.Draft(person))
-                            } label: {
+                            NavigationLink(value: person.id) {
                                 VStack(alignment: .leading) {
                                     HStack {
                                         Text(person.name)
@@ -186,6 +188,7 @@ struct PersonListView: View {
                     }
                 }
             }
+            .syncProgress(personCount: model.peopleWithGiftCount.count)
             .searchable(text: $model.searchText, prompt: "Filter by name or note")
             .navigationTitle("People")
             .toolbar {
@@ -237,6 +240,13 @@ struct PersonListView: View {
                 NavigationStack {
                     PersonForm(person: person)
                 }
+            }
+        } detail: {
+            if let selectedPersonID, let personWithGiftCount = model.peopleWithGiftCount.first(where: {$0.person.id == selectedPersonID}) {
+                PersonForm(person: Person.Draft(personWithGiftCount.person))
+                    .id(selectedPersonID)
+            } else {
+                ContentUnavailableView("Select a Person", systemImage: "person.crop.circle")
             }
         }
     }

@@ -116,6 +116,7 @@ struct GiftListView: View {
             }
             .sheet(item: $gift) { gift in
                 GiftForm(gift: gift, selectedOccasions: [])
+                    .presentationSizing(.page)
             }
         }
     }
@@ -223,6 +224,7 @@ struct GiftRow: View {
         }
         .sheet(item: $selectedGift) { gift in
             GiftForm(gift: gift, selectedOccasions: occasions)
+                .presentationSizing(.page)
         }
     }
 }
