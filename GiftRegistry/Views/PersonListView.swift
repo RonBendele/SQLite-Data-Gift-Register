@@ -13,6 +13,7 @@
 //----------------------------------------------
 // Copyright © 2026 CreaTECH Solutions (Stewart Lynch). All rights reserved.
 
+import CloudKit
 import SQLiteData
 import SwiftUI
 
@@ -20,7 +21,7 @@ import SwiftUI
 struct PersonWithGiftCount: Identifiable {
     let person: Person
     let giftCount: Int
-    
+    let isShared: Bool
     var id: Person.ID { person.id }
 }
 @MainActor
@@ -120,8 +121,13 @@ class PersonListModel {
                         .leftJoin(Gift.all) {
                             $0.id.eq($1.personID)
                         }
+                        .leftJoin(SyncMetadata.all) { $0.syncMetadataID.eq($2.id)}
                         .select {
-                            PersonWithGiftCount.Columns(person: $0, giftCount: $1.count())
+                            PersonWithGiftCount.Columns(
+                                person: $0,
+                                giftCount: $1.count(),
+                                isShared: $2.isShared.ifnull(false)
+                            )
                         },
                     animation: .default
                     )
@@ -158,6 +164,9 @@ struct PersonListView: View {
                             NavigationLink(value: person.id) {
                                 VStack(alignment: .leading) {
                                     HStack {
+                                        if personWithGiftCount.isShared {
+                                            Image(systemName: "network")
+                                        }
                                         Text(person.name)
                                             .font(.headline)
                                         Spacer()

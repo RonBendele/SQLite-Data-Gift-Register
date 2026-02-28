@@ -1,8 +1,6 @@
-# SQLiteData Part 9: CloudKit Sync
+# SQLiteData Part 10: Sharing CloudKit Records
 
-![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the **ninth** video on creating a **Gift Registry** app with **SQLiteData**
-
-This also serves as the starter project code for the tenth video in the series.
+![AppIcon128](Images/AppIcon128.png) This is the **Completed Source Code** for the **tenth** video on creating a **Gift Registry** app with **SQLiteData**
 
 If you want to support my work, you can - </br>
 

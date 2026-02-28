@@ -80,6 +80,7 @@ class GiftListViewModel {
                     .find(gift.id)
                     .update {
                         $0.isPurchased.toggle()
+                        $0.updatedAt = Date()
                     }
                     .execute(db)
             }
@@ -189,6 +190,11 @@ struct GiftRow: View {
                     .strikethrough(gift.isPurchased)
                 if let price = gift.price {
                     Text(price, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if let updatedAt = gift.updatedAt {
+                    Text("Updated: \(updatedAt.formatted(date: .abbreviated, time: .shortened))")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

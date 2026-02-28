@@ -24,6 +24,8 @@ struct Gift: Identifiable {
     var price: Double?
     var isPurchased = false
     var personID: Person.ID
+    var createdAt: Date?
+    var updatedAt: Date?
 }
 
 extension Gift.Draft: Identifiable {}

@@ -13,7 +13,7 @@
 //----------------------------------------------
 // Copyright © 2026 CreaTECH Solutions (Stewart Lynch). All rights reserved.
 
-
+import CloudKit
 import SQLiteData
 import SwiftUI
 
@@ -33,6 +33,11 @@ class PersonFormModel {
     }
     @ObservationIgnored
     @Dependency(\.defaultDatabase) var database
+    
+    @ObservationIgnored
+    @Dependency(\.defaultSyncEngine) var syncEngine
+    
+    var sharedRecord: SharedRecord?
         
     init(person: Person.Draft) {
         self.person = person
@@ -51,6 +56,20 @@ class PersonFormModel {
                     .upsert { person }
                     .execute(db)
             }
+        }
+    }
+    
+    func sharedButtonTapped() async {
+        await withErrorReporting {
+            guard let personID = person.id else { return }
+            let savedPerson = try await database.read { db in
+                try Person.find(personID)
+                    .fetchOne(db)
+            }
+            guard let savedPerson else { return }
+            sharedRecord = try await syncEngine.share(record: savedPerson, configure: { share in
+                share[CKShare.SystemFieldKey.title] = "Find gifts for \(savedPerson.name)"
+            })
         }
     }
 }
@@ -98,6 +117,17 @@ struct PersonForm: View {
                         dismiss()
                     }
                 }
+                if model.person.id != nil {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            Task {
+                                await model.sharedButtonTapped()
+                            }
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                    }
+                }
                 if model.person.id == nil {
                     ToolbarItem(placement: .cancellationAction) {
                         Button(role: .close) {
@@ -105,6 +135,10 @@ struct PersonForm: View {
                         }
                     }
                 }
+            }
+            .sheet(item: $model.sharedRecord) { sharedRecord in
+                CloudSharingView(sharedRecord: sharedRecord
+                )
             }
     }
 }

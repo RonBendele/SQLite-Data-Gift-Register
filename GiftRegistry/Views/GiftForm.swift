@@ -46,6 +46,11 @@ class GiftFormModel {
             gift.name = name
             gift.price = price
             gift.isPurchased = isPurchased
+            if gift.id == nil {
+                gift.createdAt = Date()
+            } else {
+                gift.updatedAt = Date()
+            }
             try database.write { db in
                 let giftID = try Gift
                     .upsert { gift }
@@ -163,6 +168,16 @@ struct GiftForm: View {
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                     }
+                    VStack {
+                        if let createdAt = model.gift.createdAt {
+                            Text("Created: \(createdAt.formatted(date: .abbreviated, time:  .shortened))")
+                        }
+                        if let updatedAt = model.gift.updatedAt {
+                            Text("Updated: \(updatedAt.formatted(date: .abbreviated, time:  .shortened))")
+                        }
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                     Toggle("Purchased", isOn: $model.isPurchased)
                     Section {
                         ScrollView(.horizontal, showsIndicators: false) {

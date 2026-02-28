@@ -21,6 +21,7 @@ extension DependencyValues {
     mutating func bootstrapDatabase() throws {
         var configuration = Configuration()
         configuration.prepareDatabase { db in
+            try db.attachMetadatabase()
             #if DEBUG
             db.trace {
                 print($0.expandedDescription)
@@ -96,6 +97,20 @@ extension DependencyValues {
                     "occasionID" TEXT NOT NULL REFERENCES "occasions"("id") ON DELETE CASCADE,
                     "giftID" TEXT NOT NULL REFERENCES "gifts"("id") ON DELETE CASCADE
                 ) STRICT
+                """
+            )
+            .execute(db)
+        }
+        migrator.registerMigration("Add 'createdAt' and 'updatedAt' to 'gifts'") { db in
+            try #sql(
+                """
+                ALTER TABLE "gifts" ADD COLUMN "createdAt" TEXT
+                """
+            )
+            .execute(db)
+            try #sql(
+                """
+                ALTER TABLE "gifts" ADD COLUMN "updatedAt" TEXT
                 """
             )
             .execute(db)
